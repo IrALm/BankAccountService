@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,6 +22,7 @@ import java.util.List;
         = { @UniqueConstraint(columnNames = "numeroCompte")
         /* Pour la contrainte d'unicité : numeroCompte doit étre unique*/
 })
+@Builder
 public class CompteEntity {
 
 
@@ -32,7 +34,7 @@ public class CompteEntity {
     @Size(max = 20)
     private String numeroCompte;
 
-    @NotBlank
+    @NotNull(message = "Le type de compte est obligatoire")
     @Enumerated(EnumType.STRING)
     private TypeCompte typeCompte  ;
 

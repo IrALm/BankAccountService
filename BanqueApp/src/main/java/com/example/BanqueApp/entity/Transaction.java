@@ -22,7 +22,7 @@ public class Transaction {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotNull(message = "Le type de transaction est obligatoire")
     @Enumerated(EnumType.STRING)
     private TypeTransaction typetransaction;
 
@@ -37,7 +37,7 @@ public class Transaction {
     @JoinColumn( name ="compte_id" , nullable = false)
     private CompteEntity compteSource;
 
-    /* Compte destiataire : nullable dans le cadre du dépot ou retrait */
+    /* Compte destinataire : nullable dans le cadre du dépot ou retrait */
 
     @ManyToOne
     @JoinColumn( name ="compte_dest_id")

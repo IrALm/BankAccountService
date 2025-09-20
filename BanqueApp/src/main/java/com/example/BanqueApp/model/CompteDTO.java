@@ -6,13 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/* En lecture seule */
 public record CompteDTO(
-        Long id,
         String numeroCompte,
         TypeCompte typeCompte,
-        BigDecimal solde,
-        ClientDTO client,
-        LocalDateTime dateCreation,
-        List<TransactionDTO> transactionSource,
-        List<TransactionDTO> transactionDest
+        BigDecimal solde
 ) {}
