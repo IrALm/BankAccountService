@@ -1,5 +1,6 @@
 package com.example.BanqueApp.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor // constructeur avec tous les attributs
 @Builder // Lombok: pour la méthode build()
 @Table( name = "clients")
+@Schema( description = " Répresente un client dans le système ")
 public class Customer {
 
     @Id
