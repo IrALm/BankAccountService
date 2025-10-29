@@ -1,8 +1,6 @@
 package com.example.BanqueApp.entity;
 
-import com.example.BanqueApp.model.TypeTransaction;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,11 +33,11 @@ public class Transaction {
     /* compte source de la transaction */
     @ManyToOne
     @JoinColumn( name ="compte_id" , nullable = false)
-    private CompteEntity compteSource;
+    private Count compteSource;
 
     /* Compte destinataire : nullable dans le cadre du dépot ou retrait */
 
     @ManyToOne
     @JoinColumn( name ="compte_dest_id")
-    private CompteEntity compteDest;
+    private Count compteDest;
 }

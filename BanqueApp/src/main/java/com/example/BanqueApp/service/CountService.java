@@ -1,4 +1,4 @@
 package com.example.BanqueApp.service;
 
-public interface TransactionService {
+public interface CountService {
 }
