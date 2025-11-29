@@ -5,6 +5,7 @@ import com.example.BanqueApp.model.createDTO.CreateBankAdvisorDTO;
 import com.example.BanqueApp.model.readDTO.BankAdvisorDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BankAdvisorService {
 
@@ -25,4 +26,5 @@ public interface BankAdvisorService {
     BankAdvisorDTO getBankAdvisorById(Long id);
     
     List<BankAdvisorDTO> getAllBankAdvisors();
+
 }

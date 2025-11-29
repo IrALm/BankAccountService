@@ -18,4 +18,6 @@ public interface MessageService {
     void marquerTousMessagesLus(Long conversationId, Long userId);
 
     long compterMessagesNonLus(Long conversationId, Long userId);
+
+    long compterTousMessagesNonLus(Long userId);
 }

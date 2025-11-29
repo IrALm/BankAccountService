@@ -1,12 +1,15 @@
 package com.example.BanqueApp.service.impl;
 
+import com.example.BanqueApp.Mapper.BankAdvisorMapper;
 import com.example.BanqueApp.Mapper.CustomerMapper;
 import com.example.BanqueApp.entity.*;
 import com.example.BanqueApp.model.createDTO.CreateCustomerDTO;
+import com.example.BanqueApp.model.readDTO.BankAdvisorDTO;
 import com.example.BanqueApp.model.readDTO.CustomerDTO;
 import com.example.BanqueApp.repository.BankAdvisorRepository;
 import com.example.BanqueApp.repository.CountRepository;
 import com.example.BanqueApp.repository.CustomerRepository;
+import com.example.BanqueApp.service.ConversationService;
 import com.example.BanqueApp.service.CustomerService;
 import com.example.BanqueApp.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -26,7 +30,9 @@ public class CustomerImplService implements CustomerService {
     private final BankAdvisorRepository bankAdvisorRepository;
     private final CountRepository countRepository;
     private final EmailService emailService;
+    private final ConversationService conversationService;
     private final CustomerMapper customerMapper;
+    private final BankAdvisorMapper bankAdvisorMapper;
 
     @Override
     @Transactional
@@ -75,6 +81,9 @@ public class CustomerImplService implements CustomerService {
         countRepository.save(compte);
         customerRepository.save(customer); // Sauvegarder l'association conseiller
 
+        // Créer automatiquement une conversation entre le client et le conseiller
+        conversationService.getOrCreateConversation(customer.getId(), advisor.getId());
+
         // Envoyer email de confirmation finale
         try {
             emailService.envoyerEmailNouveauClient(
@@ -99,9 +108,7 @@ public class CustomerImplService implements CustomerService {
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
-        return customerRepository.findAll().stream()
-                .map(customerMapper::toDTO)
-                .collect(Collectors.toList());
+        return customerMapper.toDTOList(customerRepository.findAll());
     }
 
     private String genererNumeroCompte() {
@@ -112,6 +119,18 @@ public class CustomerImplService implements CustomerService {
             numeroCompte.append(random.nextInt(10));
         }
         return numeroCompte.toString();
+    }
+
+    @Override
+    public List<CustomerDTO> findByAdvisorId(Long advisorId){
+        return customerMapper.toDTOList(customerRepository.findByAdvisorId(advisorId));
+    }
+
+    @Override
+    public BankAdvisorDTO findByBankAdvisorById(Long clientId){
+        Optional<Customer> customer  = customerRepository.findById(clientId);
+        return customer.map(value -> bankAdvisorMapper.toDTO(value.getAdvisor()))
+                .orElse(null);
     }
 }
 

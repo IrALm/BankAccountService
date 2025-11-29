@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - BanqueApp</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
             <h1 class="logo">BanqueApp</h1>
             <div class="nav-menu">
                 <a th:href="@{/dashboard}" class="nav-link active">Accueil</a>
-                <a th:href="@{/messaging}" class="nav-link">Messagerie</a>
+                <a th:href="@{/messaging}" class="nav-link">
+                    Messagerie
+                    <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+                </a>
                 <a sec:authorize="hasRole('CLIENT')" th:href="@{/accounts}" class="nav-link">Mes Comptes</a>
                 <a sec:authorize="hasRole('CONSEILLER_BANCAIRE')" th:href="@{/clients}" class="nav-link">Clients</a>
                 <form th:action="@{/logout}" method="post" class="logout-form">
@@ -65,5 +70,16 @@
     <footer class="footer">
         <p>&copy; 2025 BanqueApp. Tous droits réservés.</p>
     </footer>
+
+    <!-- Hidden field for user ID (for notifications) -->
+    <input type="hidden" id="notification-user-id" th:value="${user.id}">
+
+    <!-- WebSocket libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <!-- Notifications script -->
+    <script th:src="@{/js/notifications.js}"></script>
 </body>
+
 </html>

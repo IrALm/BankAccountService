@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-29T01:24:33+0100",
+    date = "2025-11-29T21:31:24+0100",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Microsoft)"
 )
 @Component
@@ -71,13 +71,13 @@ public class CustomerMapperImpl implements CustomerMapper {
     }
 
     @Override
-    public List<CustomerDTO> toDTOList(List<Customer> users) {
-        if ( users == null ) {
+    public List<CustomerDTO> toDTOList(List<Customer> customers) {
+        if ( customers == null ) {
             return null;
         }
 
-        List<CustomerDTO> list = new ArrayList<CustomerDTO>( users.size() );
-        for ( Customer customer : users ) {
+        List<CustomerDTO> list = new ArrayList<CustomerDTO>( customers.size() );
+        for ( Customer customer : customers ) {
             list.add( toDTO( customer ) );
         }
 

@@ -86,4 +86,5 @@ public class BankAdvisorServiceImpl implements BankAdvisorService {
         return BankAdvisorMapper.INSTANCE.toDTOList(bankAdvisorRepository.findAll());
     }
 
+
 }

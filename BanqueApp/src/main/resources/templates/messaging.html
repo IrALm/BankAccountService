@@ -1,70 +1,167 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messagerie - BanqueApp</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <h1 class="logo">BanqueApp</h1>
-            <div class="nav-menu">
-                <a th:href="@{/dashboard}" class="nav-link">Accueil</a>
-                <a th:href="@{/messaging}" class="nav-link active">Messagerie</a>
-                <a sec:authorize="hasRole('CLIENT')" th:href="@{/accounts}" class="nav-link">Mes Comptes</a>
-                <a sec:authorize="hasRole('CONSEILLER_BANCAIRE')" th:href="@{/clients}" class="nav-link">Clients</a>
-                <form th:action="@{/logout}" method="post" class="logout-form">
-                    <button type="submit" class="btn-logout">Déconnexion</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <main class="messaging-container">
-        <div class="messaging-sidebar" sec:authorize="hasRole('CONSEILLER_BANCAIRE')">
-            <h3>Conversations</h3>
-            <div id="conversations-list" class="conversations-list">
-                <!-- Les conversations seront chargées dynamiquement -->
-            </div>
-        </div>
-
-        <div class="messaging-main">
-            <div class="messaging-header">
-                <h2 id="conversation-title">
-                    <span sec:authorize="hasRole('CLIENT')">Mon Conseiller</span>
-                    <span sec:authorize="hasRole('CONSEILLER_BANCAIRE')">Sélectionnez une conversation</span>
-                </h2>
+    <div class="container conversation-container">
+        <!-- Sidebar avec la liste des conversations -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Messagerie</h1>
+                <div class="current-user">
+                    <div class="user-avatar">
+                        <span th:text="${currentUser.prenom.substring(0,1)}">U</span>
+                    </div>
+                    <div class="user-name" th:text="${currentUser.prenom + ' ' + currentUser.nom}">Utilisateur</div>
+                </div>
             </div>
 
-            <div id="messages-container" class="messages-container">
-                <!-- Les messages seront chargés dynamiquement -->
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher une discussion..." id="searchInput">
             </div>
 
-            <div class="message-input-container">
-                <form id="message-form" class="message-form">
-                    <textarea id="message-input" class="message-input" placeholder="Écrivez votre message..."
-                        rows="2"></textarea>
-                    <button type="submit" class="btn-send">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                    </button>
-                </form>
+            <!-- Filters -->
+            <div class="filters-container">
+                <button class="filter-btn active" data-filter="all">Toutes</button>
+                <button class="filter-btn" data-filter="unread">Non lues</button>
+                <div class="user-info-filter">
+                    <span th:text="${currentUser.prenom + ' ' + currentUser.nom}">Utilisateur</span>
+                </div>
             </div>
-        </div>
-    </main>
 
-    <input type="hidden" id="user-id" th:value="${userId}">
-    <input type="hidden" id="user-role" th:value="${userRole}">
+            <div class="conversations-list">
+                <div th:each="conv : ${conversations}" class="conversation-item"
+                    th:onclick="'window.location.href=\'/messaging?conversationId=' + ${conv.id} + '\''"
+                    th:classappend="${conversation != null && conversation.id == conv.id} ? 'active' : ''">
 
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+                    <div class="conversation-avatar">
+                        <span th:text="${conv.clientNom.substring(0,1)}">C</span>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 th:text="${conv.clientNom}">Client</h3>
+                            <span class="conversation-time"
+                                th:text="${#temporals.format(conv.dernierMessageDate, 'HH:mm')}">12:00</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <span class="unread-badge" th:if="${conv.messagesNonLus > 0}"
+                                th:text="${conv.messagesNonLus}">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des clients pour le conseiller (si pas de conversation) -->
+                <div th:if="${clients != null}">
+                    <div style="padding: 10px 20px; font-weight: bold; color: var(--chat-text-muted);">Vos Clients</div>
+                    <div th:each="client : ${clients}" class="conversation-item"
+                        th:onclick="'createConversation(' + ${client.id} + ')'">
+                        <div class="conversation-avatar" style="background: #6B7C85;">
+                            <span th:text="${client.nom.substring(0,1)}">C</span>
+                        </div>
+                        <div class="conversation-info">
+                            <h3 th:text="${client.nom + ' ' + client.prenom}">Client</h3>
+                            <span style="font-size: 12px; color: var(--chat-text-muted);">Démarrer une discussion</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-button">
+                <a th:href="@{/dashboard}" class="btn-back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Retour au Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <!-- Zone de conversation -->
+        <main class="chat-area">
+            <div th:if="${conversation != null}">
+                <!-- En-tête de conversation -->
+                <div class="chat-header">
+                    <div class="chat-header-user">
+                        <div class="user-avatar large">
+                            <span th:text="${otherUser.prenom.substring(0,1)}">U</span>
+                        </div>
+                        <div class="user-info">
+                            <h2 th:text="${otherUser.prenom + ' ' + otherUser.nom}">Utilisateur</h2>
+                            <p class="user-status">En ligne</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="messages-container" id="messagesContainer">
+                    <div th:if="${messages.isEmpty()}" class="empty-messages">
+                        <p>Aucun message pour le moment</p>
+                        <p class="text-muted">Envoyez votre premier message !</p>
+                    </div>
+
+                    <div th:each="message : ${messages}"
+                        th:class="${message.expediteurId == userId ? 'message message-sent' : 'message message-received'}">
+                        <div class="message-content">
+                            <p th:text="${message.contenu}">Contenu</p>
+                            <span class="message-time"
+                                th:text="${#temporals.format(message.dateEnvoi, 'HH:mm')}">12:30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone de saisie -->
+                <div class="message-input-area">
+                    <form id="messageForm" class="message-form">
+                        <input type="text" id="messageInput" placeholder="Écrivez votre message..." autocomplete="off"
+                            required>
+                        <button type="submit" class="btn-send">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Envoyer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${conversation == null}" class="empty-state">
+                <div class="welcome-screen">
+                    <div class="welcome-content">
+                        <h2>Bienvenue sur votre messagerie</h2>
+                        <p>Sélectionnez une conversation pour commencer à discuter.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Formulaire caché pour créer une conversation -->
+    <form id="createConvForm" th:action="@{/messaging/create}" method="post" style="display:none;">
+        <input type="hidden" name="clientId" id="createClientId">
+    </form>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const currentUserId = /*[[${userId}]]*/ 1;
+        const conversationId = /*[[${conversation != null ? conversation.id : null}]]*/ null;
+        const currentUserName = /*[[${currentUser.prenom}]]*/ 'User';
+
+        function createConversation(clientId) {
+            document.getElementById('createClientId').value = clientId;
+            document.getElementById('createConvForm').submit();
+        }
+        /*]]>*/
+    </script>
     <script th:src="@{/js/messaging.js}"></script>
 </body>
 

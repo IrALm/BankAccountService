@@ -1,5 +1,6 @@
 package com.example.BanqueApp.service.impl;
 
+import com.example.BanqueApp.Mapper.MessageMapper;
 import com.example.BanqueApp.entity.Conversation;
 import com.example.BanqueApp.entity.Message;
 import com.example.BanqueApp.entity.User;
@@ -13,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,15 +47,12 @@ public class MessageServiceImpl implements MessageService {
         // Mettre à jour la date du dernier message
         conversation.setDernierMessageDate(savedMessage.getDateEnvoi());
         
-        return toDTO(savedMessage);
+        return MessageMapper.INSTANCE.toDTO(savedMessage);
     }
 
     @Override
     public List<MessageDTO> getMessagesConversation(Long conversationId) {
-        return messageRepository.findByConversationIdOrderByDateEnvoiAsc(conversationId)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return MessageMapper.INSTANCE.toDTOList(messageRepository.findMessagesByConversationId(conversationId));
     }
 
     @Override
@@ -78,24 +74,16 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public long compterMessagesNonLus(Long conversationId, Long userId) {
-        return messageRepository.countByConversationIdAndDestinataire_IdAndLuFalse(conversationId, userId);
+        return messageRepository.countUnreadMessages(conversationId, userId);
     }
 
-    private MessageDTO toDTO(Message message) {
-        return new MessageDTO(
-                message.getId(),
-                message.getContenu(),
-                message.getDateEnvoi(),
-                message.isLu(),
-                message.getExpediteur().getId(),
-                getDisplayName(message.getExpediteur()),
-                message.getDestinataire().getId(),
-                getDisplayName(message.getDestinataire())
-        );
+    @Override
+    public long compterTousMessagesNonLus(Long userId) {
+        return messageRepository.countUnreadMessagesByDestinataire(userId);
     }
 
     private String getDisplayName(User user) {
-        // Cette méthode devra être adaptée selon votre structure
+        // Cette méthode devra être adaptée selon la structure
         // Pour l'instant, on retourne l'email
         return user.getEmail();
     }

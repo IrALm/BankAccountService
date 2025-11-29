@@ -10,5 +10,6 @@ public record MessageDTO(
         Long expediteurId,
         String expediteurNom,
         Long destinataireId,
-        String destinataireNom
+        String destinataireNom,
+        Long conversationId
 ) {}

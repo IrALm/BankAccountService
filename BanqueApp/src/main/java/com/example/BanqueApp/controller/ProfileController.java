@@ -49,6 +49,29 @@ public class ProfileController {
         return "dashboard";
     }
 
+    @GetMapping("/profile")
+    public String profile(Authentication authentication, Model model) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Vérifier si le profil est complet
+        if (user.getRole() == Role.CUSTOMER) {
+            Customer customer = (Customer) user;
+            if (customer.getNom() == null || customer.getNom().isEmpty()) {
+                return "redirect:/complete-profile-client";
+            }
+        } else if (user.getRole() == Role.BANK_ADVISOR) {
+            BankAdvisor advisor = (BankAdvisor) user;
+            if (advisor.getNom() == null || advisor.getNom().isEmpty()) {
+                return "redirect:/complete-profile-advisor";
+            }
+        }
+
+        model.addAttribute("user", user);
+        return "profile";
+    }
+
     @GetMapping("/complete-profile-client")
     public String completeProfileClientForm(Model model) {
         model.addAttribute("customerDTO", new CreateCustomerDTO(null, null, null, null, null, null, null));

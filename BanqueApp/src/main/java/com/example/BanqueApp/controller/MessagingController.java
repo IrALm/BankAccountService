@@ -1,9 +1,14 @@
 package com.example.BanqueApp.controller;
 
+import com.example.BanqueApp.entity.BankAdvisor;
+import com.example.BanqueApp.entity.Customer;
 import com.example.BanqueApp.model.createDTO.SendMessageDTO;
+import com.example.BanqueApp.model.readDTO.BankAdvisorDTO;
 import com.example.BanqueApp.model.readDTO.ConversationDTO;
+import com.example.BanqueApp.model.readDTO.CustomerDTO;
 import com.example.BanqueApp.model.readDTO.MessageDTO;
 import com.example.BanqueApp.service.ConversationService;
+import com.example.BanqueApp.service.CustomerService;
 import com.example.BanqueApp.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +27,23 @@ public class MessagingController {
     private final MessageService messageService;
     private final ConversationService conversationService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final CustomerService customerService ;
+
+    @GetMapping("/advisor/{advisorId}/clients")
+    public ResponseEntity<List<CustomerDTO>> getAdvisorClients(@PathVariable Long advisorId) {
+        return ResponseEntity.ok(customerService.findByAdvisorId(advisorId));
+    }
+
+    @GetMapping("/client/{clientId}/advisor")
+    public ResponseEntity<BankAdvisorDTO> getClientAdvisor(@PathVariable Long clientId) {
+        BankAdvisorDTO advisorDTO = customerService.findByBankAdvisorById(clientId);
+        if( advisorDTO != null){
+            return ResponseEntity.ok(advisorDTO);
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
     @GetMapping("/conversations/user/{userId}")
     public ResponseEntity<List<ConversationDTO>> getConversationsUtilisateur(@PathVariable Long userId) {
@@ -56,21 +78,10 @@ public class MessagingController {
         return ResponseEntity.ok().build();
     }
 
-    // WebSocket endpoint pour envoyer des messages en temps réel
-    @MessageMapping("/chat")
-    public void sendMessage(@Payload SendMessageDTO messageDTO) {
-        MessageDTO sentMessage = messageService.envoyerMessage(messageDTO);
-        
-        // Envoyer le message au destinataire via WebSocket
-        messagingTemplate.convertAndSend(
-                "/queue/messages/" + messageDTO.destinataireId(), 
-                sentMessage
-        );
-        
-        // Confirmer l'envoi à l'expéditeur
-        messagingTemplate.convertAndSend(
-                "/queue/messages/" + messageDTO.expediteurId(), 
-                sentMessage
-        );
+    @GetMapping("/unread-count/{userId}")
+    public ResponseEntity<Long> getUnreadMessageCount(@PathVariable Long userId) {
+        long count = messageService.compterTousMessagesNonLus(userId);
+        return ResponseEntity.ok(count);
     }
+
 }

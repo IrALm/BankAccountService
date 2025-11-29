@@ -113,7 +113,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/creation", "/user/connexion").permitAll() // endpoints publics
                         .requestMatchers("/ws/**").permitAll() // WebSocket
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Resources statiques
-                        .requestMatchers("/dashboard", "/messaging", "/complete-profile-client", "/complete-profile-advisor").authenticated()
+                        .requestMatchers("/dashboard", "/messaging", "/profile", "/complete-profile-client", "/complete-profile-advisor").authenticated()
                         .requestMatchers("/api/messaging/**").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/advisor/**").hasRole("BANK_ADVISOR")

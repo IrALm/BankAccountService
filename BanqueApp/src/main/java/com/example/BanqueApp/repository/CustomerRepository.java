@@ -21,5 +21,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     /* Recherche temporelle : client créer entre 2 dates */
     List<Customer> findByDateCreationBetween(LocalDateTime start , LocalDateTime end);
 
+    @Query("""
+    SELECT c
+    FROM Customer c
+    WHERE c.advisor.id = :advisorId
+    """)
+    List<Customer> findByAdvisorId(@Param("advisorId") Long advisorId);
+
+
 
 }

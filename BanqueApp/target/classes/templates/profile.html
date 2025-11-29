@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - BanqueApp</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">BanqueApp</h1>
+            <div class="nav-menu">
+                <a th:href="@{/dashboard}" class="nav-link">Accueil</a>
+                <a th:href="@{/messaging}" class="nav-link">Messagerie</a>
+                <a sec:authorize="hasRole('CLIENT')" th:href="@{/accounts}" class="nav-link">Mes Comptes</a>
+                <a sec:authorize="hasAnyRole('CONSEILLER_BANCAIRE', 'BANK_ADVISOR')" th:href="@{/clients}"
+                    class="nav-link">Clients</a>
+                <a th:href="@{/profile}" class="nav-link active">Profil</a>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn-logout">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="profile-header">
+                <h2>Mon Profil</h2>
+                <p class="subtitle">Informations personnelles</p>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h3>Informations de connexion</h3>
+                    <div class="profile-info">
+                        <div class="info-row">
+                            <span class="info-label">Email :</span>
+                            <span class="info-value" th:text="${user.email}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Rôle :</span>
+                            <span class="info-value" th:text="${user.role}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div sec:authorize="hasRole('CLIENT')" class="profile-section" th:object="${user}">
+                    <h3>Informations personnelles</h3>
+                    <div class="profile-info">
+                        <div class="info-row">
+                            <span class="info-label">Nom :</span>
+                            <span class="info-value" th:text="*{nom}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Prénom :</span>
+                            <span class="info-value" th:text="*{prenom}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Téléphone :</span>
+                            <span class="info-value" th:text="*{telephone}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Adresse :</span>
+                            <span class="info-value" th:text="*{adresse}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date de naissance :</span>
+                            <span class="info-value"
+                                th:text="${#temporals.format(user.dateNaissance, 'dd/MM/yyyy')}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div sec:authorize="hasAnyRole('CONSEILLER_BANCAIRE', 'BANK_ADVISOR')" class="profile-section"
+                    th:object="${user}">
+                    <h3>Informations personnelles</h3>
+                    <div class="profile-info">
+                        <div class="info-row">
+                            <span class="info-label">Nom :</span>
+                            <span class="info-value" th:text="*{nom}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Prénom :</span>
+                            <span class="info-value" th:text="*{prenom}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Téléphone :</span>
+                            <span class="info-value" th:text="*{telephone}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Adresse :</span>
+                            <span class="info-value" th:text="*{adresse}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date de naissance :</span>
+                            <span class="info-value"
+                                th:text="${#temporals.format(user.dateNaissance, 'dd/MM/yyyy')}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Matricule :</span>
+                            <span class="info-value" th:text="*{matricule}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <a th:href="@{/dashboard}" class="btn-secondary">Retour au tableau de bord</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 BanqueApp. Tous droits réservés.</p>
+    </footer>
+
+    <style>
+        .profile-header {
+            margin-bottom: 2rem;
+        }
+
+        .profile-content {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .profile-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .profile-section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 180px;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        .profile-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</body>
+
+</html>
