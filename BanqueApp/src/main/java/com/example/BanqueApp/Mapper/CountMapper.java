@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CountMapper {
 
     CountMapper INSTANCE = Mappers.getMapper(CountMapper.class);

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BanqueApp</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">BanqueApp</h1>
+            <div class="nav-menu">
+                <a th:href="@{/dashboard}" class="nav-link active">Accueil</a>
+                <a th:href="@{/messaging}" class="nav-link">Messagerie</a>
+                <a sec:authorize="hasRole('CLIENT')" th:href="@{/accounts}" class="nav-link">Mes Comptes</a>
+                <a sec:authorize="hasRole('CONSEILLER_BANCAIRE')" th:href="@{/clients}" class="nav-link">Clients</a>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn-logout">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div th:if="${message}" class="alert alert-success">
+                <p th:text="${message}"></p>
+            </div>
+
+            <div class="welcome-section">
+                <h2>Bienvenue, <span th:text="${user.email}"></span>!</h2>
+                <p class="subtitle">Vous êtes connecté en tant que <span th:text="${user.role}"></span></p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div sec:authorize="hasRole('CLIENT')" class="dashboard-card">
+                    <h3>Mes Comptes</h3>
+                    <p>Consultez vos comptes bancaires et transactions</p>
+                    <a th:href="@{/accounts}" class="btn-primary">Voir mes comptes</a>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Messagerie</h3>
+                    <p sec:authorize="hasRole('CLIENT')">Contactez votre conseiller bancaire</p>
+                    <p sec:authorize="hasRole('CONSEILLER_BANCAIRE')">Communiquez avec vos clients</p>
+                    <a th:href="@{/messaging}" class="btn-primary">Accéder à la messagerie</a>
+                </div>
+
+                <div sec:authorize="hasRole('CONSEILLER_BANCAIRE')" class="dashboard-card">
+                    <h3>Mes Clients</h3>
+                    <p>Gérez vos clients et leurs comptes</p>
+                    <a th:href="@{/clients}" class="btn-primary">Voir mes clients</a>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Profil</h3>
+                    <p>Gérez vos informations personnelles</p>
+                    <a th:href="@{/profile}" class="btn-primary">Voir mon profil</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 BanqueApp. Tous droits réservés.</p>
+    </footer>
+</body>
+</html>

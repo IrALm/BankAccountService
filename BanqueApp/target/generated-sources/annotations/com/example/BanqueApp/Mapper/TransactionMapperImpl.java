@@ -8,12 +8,14 @@ import com.example.BanqueApp.model.readDTO.CountDTO;
 import com.example.BanqueApp.model.readDTO.TransactionDTO;
 import java.math.BigDecimal;
 import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-29T19:20:11+0100",
+    date = "2025-11-29T01:27:52+0100",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Microsoft)"
 )
+@Component
 public class TransactionMapperImpl implements TransactionMapper {
 
     @Override

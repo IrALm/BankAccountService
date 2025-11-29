@@ -8,16 +8,14 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper( uses = {PersonMapper.class , CountMapper.class})
+@Mapper(componentModel = "spring", uses = {CountMapper.class})
 public interface CustomerMapper {
     CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
 
-    @Mapping(source = "person" , target = "personDTO")
-    @Mapping(source = "sesComptes" , target ="sesComptesDTO")
-    CustomerDTO toDTO( Customer customer);
+    @Mapping(source = "sesComptes", target ="sesComptesDTO")
+    CustomerDTO toDTO(Customer customer);
 
-    @Mapping(source = "personDTO" , target = "person")
-    @Mapping(source = "sesComptesDTO" , target ="sesComptes")
+    @Mapping(source = "sesComptesDTO", target ="sesComptes")
     Customer toEntity(CustomerDTO dto);
 
     // Mapping pour les listes

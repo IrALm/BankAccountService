@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagerie - BanqueApp</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">BanqueApp</h1>
+            <div class="nav-menu">
+                <a th:href="@{/dashboard}" class="nav-link">Accueil</a>
+                <a th:href="@{/messaging}" class="nav-link active">Messagerie</a>
+                <a sec:authorize="hasRole('CLIENT')" th:href="@{/accounts}" class="nav-link">Mes Comptes</a>
+                <a sec:authorize="hasRole('CONSEILLER_BANCAIRE')" th:href="@{/clients}" class="nav-link">Clients</a>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn-logout">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="messaging-container">
+        <div class="messaging-sidebar" sec:authorize="hasRole('CONSEILLER_BANCAIRE')">
+            <h3>Conversations</h3>
+            <div id="conversations-list" class="conversations-list">
+                <!-- Les conversations seront chargées dynamiquement -->
+            </div>
+        </div>
+
+        <div class="messaging-main">
+            <div class="messaging-header">
+                <h2 id="conversation-title">
+                    <span sec:authorize="hasRole('CLIENT')">Mon Conseiller</span>
+                    <span sec:authorize="hasRole('CONSEILLER_BANCAIRE')">Sélectionnez une conversation</span>
+                </h2>
+            </div>
+
+            <div id="messages-container" class="messages-container">
+                <!-- Les messages seront chargés dynamiquement -->
+            </div>
+
+            <div class="message-input-container">
+                <form id="message-form" class="message-form">
+                    <textarea id="message-input" class="message-input" placeholder="Écrivez votre message..."
+                        rows="2"></textarea>
+                    <button type="submit" class="btn-send">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <input type="hidden" id="user-id" th:value="${userId}">
+    <input type="hidden" id="user-role" th:value="${userRole}">
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/js/messaging.js}"></script>
+</body>
+
+</html>

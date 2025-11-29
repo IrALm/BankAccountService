@@ -13,10 +13,10 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    @Query("SELECT c FROM Customer c WHERE c.person.email = :email")
-    Optional<Customer> findByEmail(@Param("email") String email);
+    /*@Query("SELECT c FROM Customer c WHERE c.email = :email")
+    Optional<Customer> findByEmail(@Param("email") String email);*/
 
-    @Query("SELECT c FROM Customer c WHERE c.person.telephone = :telephone")
+    @Query("SELECT c FROM Customer c WHERE c.telephone = :telephone")
     Optional<Customer> findByTelephone(@Param("telephone")String telephone);
     /* Recherche temporelle : client créer entre 2 dates */
     List<Customer> findByDateCreationBetween(LocalDateTime start , LocalDateTime end);
